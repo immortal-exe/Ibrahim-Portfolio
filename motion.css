@@ -1,0 +1,50 @@
+/* motion.css — add AFTER style.css:  <link rel="stylesheet" href="motion.css"> */
+.prog{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--red);transform-origin:0 50%;scale:0 1;z-index:9999;pointer-events:none}
+
+/* hero cards: show the photos properly */
+.c-bg{opacity:.92;filter:contrast(1.05) saturate(1.05)}
+.c-bg::after{background:linear-gradient(to top,rgba(0,0,0,.62),transparent 55%)}
+.c:hover .c-bg{opacity:1}
+.c.r .c-bg{opacity:.9}
+.c.r:hover .c-bg{opacity:1}
+.c.p img{transition:filter .6s}.c.p:hover img{filter:none}
+
+/* 3D hero */
+.mo .hero{perspective:1400px}
+.mo .fan{transform-style:preserve-3d}
+.mo .hero .blk{transform-origin:50% 0}
+
+/* big text bands that react to scroll speed */
+.marq{width:100vw;margin:clamp(40px,8vw,90px) 0 0 calc(50% - 50vw);overflow:hidden;padding:10px 0;transform-origin:50% 50%;will-change:transform}
+.mr{white-space:nowrap;margin-left:-60vw;font-stretch:125%;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(46px,9vw,130px);line-height:1.02;will-change:translate}
+.mr.b{color:transparent;-webkit-text-stroke:1.5px var(--ink)}
+.mr.a span{color:var(--ink)}
+
+/* scroll-driven 3D image tunnel */
+#reel{height:430vh;padding:0;width:100vw;margin-left:calc(50% - 50vw);position:relative}
+.reel-pin{position:sticky;top:0;height:100vh;overflow:hidden;perspective:1000px;perspective-origin:50% 50%}
+.reel-title{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-stretch:125%;font-weight:900;text-transform:uppercase;font-size:clamp(60px,15vw,220px);line-height:.9;letter-spacing:-.03em;color:transparent;-webkit-text-stroke:1.5px var(--ink);opacity:.5;pointer-events:none;will-change:scale}
+.reel-stage{position:absolute;inset:0;transform-style:preserve-3d}
+.rc{position:absolute;left:50%;top:50%;width:clamp(170px,24vw,340px);aspect-ratio:3/4;border-radius:clamp(14px,2vw,22px);overflow:hidden;background:var(--card);box-shadow:0 30px 60px -25px rgba(0,0,0,.6);backface-visibility:hidden;will-change:transform,opacity}
+.rc img{width:100%;height:100%;object-fit:cover;display:block}
+.reel-cap{position:absolute;left:clamp(18px,4vw,48px);bottom:calc(28px + env(safe-area-inset-bottom,0px));font-weight:800;font-size:14px;display:flex;gap:14px;align-items:baseline}
+.reel-cap b{font-stretch:125%;font-weight:900;font-size:clamp(28px,5vw,56px);letter-spacing:-.03em}
+
+/* split headings: each line rises and unfolds in 3D */
+.mo h2 .ln{display:block;overflow:hidden;padding-bottom:.1em;margin-bottom:-.1em;perspective:700px}
+.mo h2 .ln>span{display:block;translate:0 110%;rotate:1 0 0 -70deg;transform-origin:50% 100%;transition:translate 1.1s cubic-bezier(.16,1,.3,1) calc(var(--i)*.1s),rotate 1.1s cubic-bezier(.16,1,.3,1) calc(var(--i)*.1s)}
+.mo h2.in .ln>span{translate:0 0;rotate:1 0 0 0deg}
+
+/* cards fold up into place */
+.stats,.achievements,.video-grid,.gallery-grid,#gallery-showcase-view,.platform-group,#about .two{perspective:1400px}
+.mo .rv{opacity:0;translate:0 70px;rotate:1 0 0 28deg;transform-origin:50% 100%;transition:opacity .9s ease var(--d,0s),translate 1.1s cubic-bezier(.16,1,.3,1) var(--d,0s),rotate 1.1s cubic-bezier(.16,1,.3,1) var(--d,0s),transform .3s,box-shadow .3s,border-color .3s}
+.mo .rv.in{opacity:1;translate:0 0;rotate:1 0 0 0deg}
+.mo .rv.done{transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+
+/* photo change wipe + depth parallax */
+@keyframes wipe{from{clip-path:inset(0 0 0 100%);scale:1.18}to{clip-path:inset(0 0 0 0);scale:1}}
+.showcase-img.wipe{animation:wipe .95s cubic-bezier(.16,1,.3,1) both}
+.showcase-backdrop{will-change:translate}
+
+@media(max-width:760px){#reel{height:360vh}.mr{margin-left:-80vw}}
+@media(prefers-reduced-motion:reduce){.marq,.mr{transform:none!important;translate:none!important}}
