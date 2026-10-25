@@ -84,11 +84,12 @@
                     <h2 class="X">Dance.<br>Rap.<br>Real life.</h2>
                 </div>
                 <div>
-                    <p>I’m Ibrahim Pasha, a versatile performer from South India. I’ve been on four dance reality shows, and
+                    <p>I’m Ibrahim Pasha, a versatile performer from South India. I’ve been on four dance reality shows,
+                        and
                         now I’m taking the journey beyond the stage and onto your screen.</p>
-                    <p>“DZ” stands for Danish Zehen, a legend who inspired millions, including me. The name carries his
-                        energy, his vision and his fearless spirit.</p>
-                    <div class="facts"><span>Dancer</span><span>Rapper</span><span>Vlogger</span><span>South India</span>
+
+                    <div class="facts"><span>Dancer</span><span>Rapper</span><span>Vlogger</span><span>South
+                            India</span>
                     </div>
                 </div>
             </div>
@@ -297,9 +298,9 @@
         const el = (h) => { const d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstChild };
         /* nav */
         const menu = $('#menu'), links = $('#links');
-menu.onclick = () => menu.setAttribute('aria-expanded', links.classList.toggle('open'));
-links.onclick = e => { if (e.target.closest('a')) { links.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); } };
-document.addEventListener('click', e => { if (!e.target.closest('nav') && links.classList.contains('open')) { links.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); } });
+        menu.onclick = () => menu.setAttribute('aria-expanded', links.classList.toggle('open'));
+        links.onclick = e => { if (e.target.closest('a')) { links.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); } };
+        document.addEventListener('click', e => { if (!e.target.closest('nav') && links.classList.contains('open')) { links.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); } });
         /* fit headline */
         const h1 = $('h1'), meas = $('#meas'); function fit() { const w = h1.parentElement.clientWidth; h1.style.fontSize = '100px'; const m = meas.getBoundingClientRect().width || 1; h1.style.fontSize = Math.min(230, Math.max(34, 100 * w / m * .95)) + 'px' }
         fit(); addEventListener('resize', fit); document.fonts && document.fonts.ready.then(fit);
