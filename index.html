@@ -191,10 +191,15 @@
             </article>
         </div>
     </section>
-    <section id="reel" aria-label="Photo ring">
-        <div class="pin">
-            <div class="rt X" aria-hidden="true">Ibrahim<br>Pasha DZ</div>
-            <div class="rg" id="rs"></div><span class="hint">✦ Drag or swipe to spin 3D ring ✦</span>
+    <section id="reel" aria-label="Draggable cards gallery">
+        <div class="reel-watermark X" aria-hidden="true">IBRAHIM PASHA</div>
+        <div class="drag-wrap" id="dragWrap">
+            <div class="drag-track" id="dragTrack"></div>
+        </div>
+        <div class="drag-controls">
+            <button class="drag-btn" id="dragPrev" aria-label="Previous photos">‹</button>
+            <span class="drag-hint">✦ Drag to explore ✦</span>
+            <button class="drag-btn" id="dragNext" aria-label="Next photos">›</button>
         </div>
     </section>
     <section class="w" id="gallery">
@@ -388,7 +393,7 @@
             { file: 'assests/IMG_7778.MP4', poster: 'assests/5.jpg', t: 'High Energy Stage Dance Reel', d: 'Dance · Live choreography climax', tg: 'Original Short' },
             { file: 'assests/IMG_7220.MOV', poster: 'assests/6.jpg', t: 'Studio Movement & Rhythm', d: 'Dance · Spontaneous freestyle flow', tg: 'Original Short' },
             { id: '3bq7rgI5qMk', poster: 'assests/13.jpg', t: 'Freestyle Hip-Hop Flow', d: 'Dance · Street attitude', tg: 'Freestyle' },
-            { id: 'DVkb8cojUs4', poster: 'assests/27.jpg', t: 'Dance Collab with Lauren Gottlieb', d: 'USA tour milestone', tg: 'Collab' }
+            { id: 'DVkb8cojUs4', poster: 'assests/28.jpg', t: 'Dance Collab with Lauren Gottlieb', d: 'USA tour milestone', tg: 'Collab' }
         ];
         const vObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -500,28 +505,69 @@ ${nm}`; fn.textContent = 'Opening your email app…'; location.href = `mailto:${
             const reg = n => { if (n.classList.contains('rv')) return; n.classList.add('rv'); n.style.setProperty('--d', [...n.parentElement.children].indexOf(n) % 6 * .08 + 's'); for (const k in TM) if (n.matches(k)) n.dataset.t = TM[k]; io.observe(n) };
             $$('.s,.pb,.sh,.vt,.facts,.stage,.fs,.mail,.sc,.fm,#about p,.kk').forEach(reg); $$('h2').forEach(h => io.observe(h));
             new MutationObserver(() => $$('.gi').forEach(reg)).observe($('#gr'), { childList: true });
-            /* tunnel */
-            const rs = $('#rs'), n = G.length, step = 360 / n, cards = G.map(p => { const d = el(`<div class="rc"><img src="${p.s}" alt="${p.t}" draggable="false"></div>`); rs.append(d); return d });
-            let R = 500, drag = 0, dv = 0, dn = 0, px = 0, spinAng = 0;
-            function ringSize() {
-                const isMob = innerWidth < 768;
-                const w = clamp(innerWidth * (isMob ? .34 : .22), 110, 260);
-                R = w * 1.05 / (2 * Math.tan(Math.PI / n));
-                cards.forEach((c, i) => {
-                    c.style.width = w + 'px';
-                    c.style.height = w * 4 / 3 + 'px';
-                    c.style.transform = `translate(-50%,-50%) rotateY(${i * step}deg) translateZ(${R}px)`;
+            /* draggable cards (no captions) */
+            const dragWrap = $('#dragWrap'), dragTrack = $('#dragTrack');
+            if (dragTrack && dragWrap) {
+                dragTrack.innerHTML = G.map((p, i) => `
+                    <div class="drag-card" data-idx="${i}" role="button" tabindex="0" aria-label="${p.t}">
+                        <img src="${p.s}" alt="" draggable="false" loading="lazy">
+                    </div>
+                `).join('');
+
+                let isDown = false, startX = 0, scrollLeft = 0, velX = 0, moved = false;
+
+                dragWrap.addEventListener('pointerdown', e => {
+                    isDown = true;
+                    moved = false;
+                    startX = e.pageX - dragWrap.offsetLeft;
+                    scrollLeft = dragWrap.scrollLeft;
+                    velX = 0;
+                    dragWrap.classList.add('grabbing');
+                });
+
+                const onPointerMove = e => {
+                    if (!isDown) return;
+                    const x = e.pageX - dragWrap.offsetLeft;
+                    const walk = x - startX;
+                    if (Math.abs(walk) > 4) moved = true;
+                    velX = walk;
+                    dragWrap.scrollLeft = scrollLeft - walk;
+                };
+
+                const onPointerUp = () => {
+                    if (!isDown) return;
+                    isDown = false;
+                    dragWrap.classList.remove('grabbing');
+                    let momentum = velX * 0.85;
+                    const glide = () => {
+                        if (Math.abs(momentum) > 0.6) {
+                            dragWrap.scrollLeft -= momentum;
+                            momentum *= 0.92;
+                            requestAnimationFrame(glide);
+                        }
+                    };
+                    requestAnimationFrame(glide);
+                };
+
+                dragWrap.addEventListener('pointermove', onPointerMove);
+                window.addEventListener('pointerup', onPointerUp);
+                window.addEventListener('pointercancel', onPointerUp);
+
+                const stepScroll = () => Math.max(260, dragWrap.clientWidth * 0.6);
+                const prevBtn = $('#dragPrev'), nextBtn = $('#dragNext');
+                if (prevBtn) prevBtn.onclick = () => dragWrap.scrollBy({ left: -stepScroll(), behavior: 'smooth' });
+                if (nextBtn) nextBtn.onclick = () => dragWrap.scrollBy({ left: stepScroll(), behavior: 'smooth' });
+
+                dragTrack.addEventListener('click', e => {
+                    if (moved) return;
+                    const card = e.target.closest('.drag-card');
+                    if (card) {
+                        gi = +card.dataset.idx;
+                        lbo();
+                    }
                 });
             }
-            ringSize(); addEventListener('resize', ringSize);
-            const pinEl = $('.pin');
-            if (pinEl) {
-                pinEl.addEventListener('pointerdown', e => { dn = 1; px = e.clientX; dv = 0 });
-                addEventListener('pointermove', e => { if (dn) { const d = (e.clientX - px) * .35; px = e.clientX; drag += d; dv = d } });
-                addEventListener('pointerup', () => dn = 0);
-                addEventListener('pointercancel', () => dn = 0);
-            }
-            const bands = $$('.mr'), marq = $('#marq'), top = $('.hero'), blk = $('.blk'), wel = $('.wel'), g1 = $('.g1'), g2 = $('.g2'), mn = $$('h1>span')[3], fan = $('.fan'), fc = $$('.c', fan), ring = $('.ring'), rt = $('.rt');
+            const bands = $$('.mr'), marq = $('#marq'), top = $('.hero'), blk = $('.blk'), wel = $('.wel'), g1 = $('.g1'), g2 = $('.g2'), mn = $$('h1>span')[3], fan = $('.fan'), fc = $$('.c', fan), ring = $('.ring');
             let cur = scrollY, vel = 0, mx = 0, my = 0, cx = 0, cy = 0, last = -1; addEventListener('pointermove', e => { mx = (e.clientX / innerWidth - .5) * 2; my = (e.clientY / innerHeight - .5) * 2 }, { passive: true });
             (function fr() {
                 const pv = cur; cur = lerp(cur, scrollY, .1); vel = lerp(vel, cur - pv, .2); cx = lerp(cx, mx, .07); cy = lerp(cy, my, .07);
@@ -531,16 +577,6 @@ ${nm}`; fn.textContent = 'Opening your email app…'; location.href = `mailto:${
                     const m = Math.hypot(cx, cy); fan.style.rotate = m < .01 ? '' : `${-cy} ${cx} 0 ${m * 6}deg`; fc.forEach((c, k) => { const i = k - (fc.length - 1) / 2; c.style.translate = `${i * p * 80 - cx * i * 7}px ${-p * 40}px ${(2 - Math.abs(i)) * 24 - p * 140}px`; c.style.rotate = `0 1 0 ${i * -p * 24}deg` }); ring.style.rotate = `${cur * .12}deg`
                 }
                 const mr = marq.getBoundingClientRect(); if (mr.bottom > -200 && mr.top < innerHeight + 200) { const x = mr.top * .45; bands[0].style.translate = `${x}px 0`; bands[1].style.translate = `${-x - 300}px 0`; marq.style.transform = `skewX(${clamp(vel * -.4, -12, 12)}deg)` }
-                const rr = reel.getBoundingClientRect(); if (rr.bottom > -100 && rr.top < innerHeight + 100) {
-                    if (!dn) { spinAng += 0.28 + dv; dv *= 0.94 } else { spinAng += dv; dv = 0 }
-                    const ang = spinAng + drag;
-                    rs.style.transform = `translateZ(${-R}px) rotateX(-5deg) rotateY(${-ang}deg)`;
-                    cards.forEach((c, i) => {
-                        const rad = (i * step - ang) * Math.PI / 180;
-                        const cos = Math.cos(rad);
-                        c.style.opacity = (cos > 0 ? (0.2 + 0.8 * cos) : 0.04).toFixed(3);
-                    });
-                }
                 requestAnimationFrame(fr)
             })()
         }
